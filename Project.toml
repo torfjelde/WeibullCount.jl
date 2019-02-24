@@ -1,0 +1,9 @@
+name = "WeibullCount"
+uuid = "c61f3c9e-3876-11e9-0441-edbdf9847fbf"
+authors = ["Tor Erlend Fjelde <tor.erlend95@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+LRUCache = "8ac3fa9e-de4c-5943-b1dc-09c6b5f20637"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
