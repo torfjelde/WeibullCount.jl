@@ -12,7 +12,8 @@ WeibullCountProcess(λ::Number, c::Number) = WeibullCountProcess(λ, c, 1.0)
 
 # PDF
 pdf(d::WeibullCountProcess, x::Array{BigInt}) = begin
-    weibull_count_pdf.(x, d.λ, d.c, d.t)
+    # extract the actual result of the computation
+    weibull_count_pdf.(x, d.λ, d.c, d.t)[1]
 end
 pdf(d::WeibullCountProcess, x::AbstractArray) = pdf.(d, BigInt.(x))
 
@@ -25,7 +26,8 @@ end
 
 # CDF
 cdf(d::WeibullCountProcess, x::Array{BigInt}) = begin
-    weibull_count_cdf.(x, d.λ, d.c)
+    # extract the actual result of the computation
+    weibull_count_cdf.(x, d.λ, d.c)[1]
 end
 cdf(d::WeibullCountProcess, x::AbstractArray) = cdf(d, BigInt.(x))
 

@@ -91,7 +91,7 @@ BigInt and BigFloat: 188.098980 seconds (296.12 M allocations: 11.054 GiB, 0.83%
  63.392854 seconds (98.99 M allocations: 3.752 GiB, 0.98% gc time)
 1.953731363534023055349256598763820641174059397326485646480541542361423252806044e-09
 """
-function weibull_count_pdf(x::T1, λ::T2, c::T2, t::T2; k::T1 = convert(T1, N_TERMS), transform::Bool = true, increment::T1 = convert(T1, 10), tol::T2 = convert(T2, 0.001))::T2 where {T1 <: Integer, T2 <: AbstractFloat}
+function weibull_count_pdf_approx(x::T1, λ::T2, c::T2, t::T2; k::T1 = convert(T1, N_TERMS), transform::Bool = true, increment::T1 = convert(T1, 10), tol::T2 = convert(T2, 0.001))::Tuple{T2, Bool} where {T1 <: Integer, T2 <: AbstractFloat}
     # endpoint
     maximum = x + k
     
@@ -139,21 +139,45 @@ function weibull_count_pdf(x::T1, λ::T2, c::T2, t::T2; k::T1 = convert(T1, N_TE
         s = s_new
     end
 
+    # if !converged
+    #     println("failed to converge")
+    # end
+    # if !valid
+    #     println("invalid probability")
+    # end
+
+    return s, (valid & converged)
+end
+
+struct DivergedError{T1, T2} <: Exception where {T1 <: Integer, T2 <: AbstractFloat}
+    x::T1
+    λ::T2
+    c::T2
+    t::T2
+    k::T1
+    transform::Bool
+    increment::T1
+    tol::T2
+    result::T2
+end
+
+Base.showerror(io::IO, e::DivergedError) = print(io, "series approximation failed to converge; try increasing `k`:\nx = $(e.x), λ = $(e.λ), c = $(e.c), t = $(e.t), k = $(e.k), transform = $(e.transform), increment = $(e.increment), tol = $(e.tol), result = $(e.result)")
+
+function weibull_count_pdf(x::T1, λ::T2, c::T2, t::T2; k::T1 = convert(T1, N_TERMS), transform::Bool = true, increment::T1 = convert(T1, 10), tol::T2 = convert(T2, 0.001))::T2 where {T1 <: Integer, T2 <: AbstractFloat}
+    p, converged = weibull_count_pdf_approx(x, λ, c, t; k = k, transform = transform, increment = increment, tol = tol)
+
     if !converged
-        println("failed to converge")
-    end
-    if !valid
-        println("invalid probability")
+        throw(DivergedError(x, λ, c, t, k, transform, increment, tol, p))
     end
 
-    return s
+    return p
 end
 
 function weibull_count_pdf(x::T1, λ::T2, c::T2; k::T1 = convert(T1, N_TERMS), transform::Bool = true, increment::T1 = convert(T1, 10), tol::T2 = convert(T2, 0.001))::T2 where {T1 <: Integer, T2 <: AbstractFloat}
     weibull_count_pdf(x, λ, c, T2(1.0); k = k, transform = transform, increment = increment, tol = tol)
 end
 
-function weibull_count_cdf(x::T1, λ::T2, c::T2; k::T1=convert(T1, N_TERMS)) where {T1 <: Integer, T2 <: AbstractFloat}
+function weibull_count_cdf(x::T1, λ::T2, c::T2; k::T1=convert(T1, N_TERMS))::T2 where {T1 <: Integer, T2 <: AbstractFloat}
     if x < 0
         return 0
     elseif x == 0

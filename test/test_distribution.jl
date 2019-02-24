@@ -7,9 +7,9 @@ begin
     
     d = WeibullCountProcess(λ, c)
 
-    @test pdf(d, x)
-    @test pdf(d, [x])
+    @test pdf(d, x) ≥ 0
+    @test all(pdf(d, [x]) .≥ 0)
 
-    @test cdf(d, x)
-    @test cdf(d, [x])
+    @test cdf(d, x) ≥ 0
+    @test all(cdf(d, [x]) .≥ 0)
 end
