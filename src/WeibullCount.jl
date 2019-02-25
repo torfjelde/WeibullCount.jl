@@ -8,7 +8,7 @@ export weibull_count_pdf,
 using SpecialFunctions
 using LRUCache
 
-N_TERMS = 300
+N_TERMS = 500
 
 function loggamma(x)
     log(gamma(x))
