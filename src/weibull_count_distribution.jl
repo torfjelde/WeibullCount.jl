@@ -6,7 +6,7 @@ Weibull count model.
 
 **Weibull count model** is a discrete distribution obtained as the *count model with inter-arrival times assumed to be i.i.d. Weibull distributed* [1, Section 3.1].
 
-That is, a Weibull count model models the *number of events* which occur within some time `t`, where the time *between* each of the events is (i.i.d.) Weibull distributed.
+, a Weibull count model models the *number of events* which occur within some time `t`, where the time *between* each of the events is (i.i.d.) Weibull distributed.
 
 ## Notes
 The computation of the PDF, CDF, etc. for a Weibull counting model requires approximation of an infinite series, which is highly unstable. We therefore make use of `BigInt` and `BigFloat` for all computations under the hood.
