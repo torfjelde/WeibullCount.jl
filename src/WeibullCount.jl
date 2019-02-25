@@ -58,6 +58,7 @@ const WEIBULL_ALPHA_CACHE_SIZE = 10000
 const _weibull_alpha_cache = LRU{Tuple{Integer, Integer, Number}, Number}(WEIBULL_ALPHA_CACHE_SIZE)
 
 cache_clear!() = empty!(_weibull_alpha_cache)
+cache_size!(n) = resize!(_weibull_alpha_cache, n)
 cache_info() = length(_weibull_alpha_cache)
 
 """
