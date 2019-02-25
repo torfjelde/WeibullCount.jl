@@ -2,7 +2,7 @@ module WeibullCount
 
 export weibull_count_pdf,
     weibull_count_cdf,
-    WeibullCountProcess,
+    WeibullCountModel,
     pdf, cdf
 
 using SpecialFunctions
@@ -15,6 +15,15 @@ function loggamma(x)
 end
 
 # By using parametric types, we can use Float32 or BigFloat, and we will return the same type
+"""
+    `van_wijngaarden_transformation(a::AbstractArray{T})::T where T <: AbstractFloat`
+
+Computes the alternating sum of the terms `a` (assuming first term to be have positive coefficient).
+
+This method is an example ofa "series acceleration", and will in most cases increase the convergence rate, i.e. requiring fewer terms
+to obtain converge for a given tolerance, as compared to just computing the partial sum.
+Van-Wijngaarden transformation is a particular implementation of the Euler transformation of the alternating series given by terms `a`.
+"""
 function van_wijngaarden_transformation(a::AbstractArray{T})::T where T <: AbstractFloat
     n = length(a)
     
@@ -51,6 +60,11 @@ const _weibull_alpha_cache = LRU{Tuple{Integer, Integer, Number}, Number}(WEIBUL
 cache_clear!() = empty!(_weibull_alpha_cache)
 cache_info() = length(_weibull_alpha_cache)
 
+"""
+    `weibull_alpha(j::Integer, i::Integer, c::Number)::Number`
+
+This method used repeadly 
+"""
 function weibull_alpha(j::Integer, i::Integer, c::Number)::Number
     @get! _weibull_alpha_cache (j, i, c) _weibull_alpha(j, i, c)
 end
@@ -79,17 +93,13 @@ function weibull_count_pdf_old(x::T1, λ::T2, c::T2, t::T2; k::T1=convert(T1, N_
 end
 
 """
-    weibull_count_pdf(x::T1, λ::T2, c::T2, t::T2; k::T1 = convert(T1, 200), transform::Bool = true, increment::T1 = convert(T1, 10), tol::T2 = convert(T2, 0.001))::T2 where {T1 <: Integer, T2 <: AbstractFloat}
+    `weibull_count_pdf_approx(x::T1, λ::T2, c::T2, t::T2; k::T1 = convert(T1, $N_TERMS), transform::Bool = true, increment::T1 = convert(T1, 10), tol::T2 = convert(T2, 0.001))::Tuple{T2, Bool} where {T1 <: Integer, T2 <: AbstractFloat}`
 
-Comparison to naive `weibull_count_pdf_old` with `k = 200` with `tol = 0.001` and `increment = 10`:
+Computes approximation of Eq. 11 in [1] using partial sum and, if `transform = true`, Van-Wijngaarden transformation.
 
-`weibull_count_pdf_old`
-BigInt and BigFloat: 188.098980 seconds (296.12 M allocations: 11.054 GiB, 0.83% gc time)
-1.967395444166190212745362025184323960822803114904124264620556280471972627672913e-09
+## References
+[1] Adrian, M., Bradlow, E., Fader, P., & McShane, B., Count models based on weibull interarrival times, CoRR, (),  (2013). 
 
-`weibull_count_pdf`
- 63.392854 seconds (98.99 M allocations: 3.752 GiB, 0.98% gc time)
-1.953731363534023055349256598763820641174059397326485646480541542361423252806044e-09
 """
 function weibull_count_pdf_approx(x::T1, λ::T2, c::T2, t::T2; k::T1 = convert(T1, N_TERMS), transform::Bool = true, increment::T1 = convert(T1, 10), tol::T2 = convert(T2, 0.001))::Tuple{T2, Bool} where {T1 <: Integer, T2 <: AbstractFloat}
     # endpoint
@@ -163,6 +173,17 @@ end
 
 Base.showerror(io::IO, e::DivergedError) = print(io, "series approximation failed to converge; try increasing `k`:\nx = $(e.x), λ = $(e.λ), c = $(e.c), t = $(e.t), k = $(e.k), transform = $(e.transform), increment = $(e.increment), tol = $(e.tol), result = $(e.result)")
 
+"""
+    `weibull_count_pdf(x::T1, λ::T2, c::T2, t::T2; k::T1 = convert(T1, $N_TERMS), transform::Bool = true, increment::T1 = convert(T1, 10), tol::T2 = convert(T2, 0.001))::T2 where {T1 <: Integer, T2 <: AbstractFloat}`
+
+Computes an approximation to `P(X(t) = x)` for time `t`, for a Weibull counting model with parameters `λ` and `c`.
+
+The main computation is performed by `WeibullCount.weibull_count_pdf_approx`
+
+## See also
+`WeibullCount.weibull_count_pdf_approx`
+
+"""
 function weibull_count_pdf(x::T1, λ::T2, c::T2, t::T2; k::T1 = convert(T1, N_TERMS), transform::Bool = true, increment::T1 = convert(T1, 10), tol::T2 = convert(T2, 0.001))::T2 where {T1 <: Integer, T2 <: AbstractFloat}
     p, converged = weibull_count_pdf_approx(x, λ, c, t; k = k, transform = transform, increment = increment, tol = tol)
 

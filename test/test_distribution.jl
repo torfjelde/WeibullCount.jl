@@ -5,7 +5,7 @@ begin
     c = 0.36787944117144233
     λ = 20.08553692
     
-    d = WeibullCountProcess(λ, c)
+    d = WeibullCountModel(λ, c)
 
     @test pdf(d, x) ≥ 0
     @test all(pdf(d, [x]) .≥ 0)
