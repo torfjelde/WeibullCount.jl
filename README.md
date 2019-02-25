@@ -1,4 +1,4 @@
-# `WeibullCount.jl`
+# WeibullCount.jl
 
 `WeibullCount.jl` provides a (partial) implementation of `WeibullCountModel` as a `Distribution` (in `Distributions.jl`).
 
