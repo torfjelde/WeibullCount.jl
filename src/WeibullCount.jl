@@ -203,7 +203,7 @@ function weibull_count_cdf(x::T1, λ::T2, c::T2; k::T1=convert(T1, N_TERMS))::T2
     if x < 0
         return 0
     elseif x == 0
-        return sum(weibull_count_pdf(0, λ, c; k=k))
+        return sum(weibull_count_pdf(T1(0), λ, c; k=k))
     end
     
     return sum(weibull_count_pdf(y, λ, c; k=k) for y = 0:x)
