@@ -112,6 +112,7 @@ Most of the methods related to `WeibullCountModel` are dependent on the series a
 # TODO
 - [ ] Implement sampling; maybe do so by sampling from `Weibull` distribution rather than directly from `pdf` of `WeibullCountModel`
 - [ ] Certain parts can be made parallel. Whether or not it's sufficiently heavy tasks to make it more efficient, we'll see.
+- [ ] Rewrite recursive `weibull_alpha` as while-loop, and allow caching to be optional. With current impl, we run into issues when using auto-grad packages.
 
 # References
 [1] Adrian, M., Bradlow, E., Fader, P., & McShane, B., Count models based on weibull interarrival times, CoRR, (),  (2013).
